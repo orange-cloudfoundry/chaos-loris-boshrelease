@@ -1,0 +1,7 @@
+---
+name: chaos_loris_pkg
+dependencies: []
+files:
+- chaos-loris/**/*
+- openjdk/*
+- common/setup-java-prepackaging.sh

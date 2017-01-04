@@ -1,0 +1,16 @@
+set -e
+set -u
+set -x
+
+. common/setup-java-prepackaging.sh
+
+cd ${BUILD_DIR}/chaos-loris
+
+./mvnw install -DskipTest
+mv target/chaos-loris*.jar  ${BUILD_DIR}
+
+cd ${BUILD_DIR}
+rm -rf autosleep
+
+
+
