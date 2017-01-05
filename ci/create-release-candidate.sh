@@ -31,17 +31,17 @@ pushd current-boshrelease
   git status
 
   echo "Sync blobs"
-  bosh sync blobs
+  bosh sync-blobs
 
 #  echo "Getting OpenJDK blobs"
 #  bosh add blob ${OPENJDK_DIR}/openjdk.tar.gz openjdk
 
 
   echo "Creating bosh release"
-  bosh -n create release --with-tarball --name ${CURRENT_BOSHRELEASE_NAME} --version "$VERSION" --force
+  bosh -n create-release --tarball="$OUTPUT" --name ${CURRENT_BOSHRELEASE_NAME} --version "$VERSION" --force
 
-  echo "Moving to $OUTPUT"
-  mv dev_releases/current-boshrelease/${CURRENT_BOSHRELEASE_NAME}-*.tgz "$OUTPUT"
+#  echo "Moving to $OUTPUT"
+#  mv dev_releases/current-boshrelease/${CURRENT_BOSHRELEASE_NAME}-*.tgz "$OUTPUT"
 
   git status
 
