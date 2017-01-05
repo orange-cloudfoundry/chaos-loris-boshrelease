@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2015 Orange
+# Copyright (C) 2017 Orange
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -33,15 +33,8 @@ pushd current-boshrelease
   echo "Sync blobs"
   bosh sync-blobs
 
-#  echo "Getting OpenJDK blobs"
-#  bosh add blob ${OPENJDK_DIR}/openjdk.tar.gz openjdk
-
-
-  echo "Creating bosh release"
-  bosh -n create-release --tarball="$OUTPUT" --name ${CURRENT_BOSHRELEASE_NAME} --version "$VERSION" --force
-
-#  echo "Moving to $OUTPUT"
-#  mv dev_releases/current-boshrelease/${CURRENT_BOSHRELEASE_NAME}-*.tgz "$OUTPUT"
+  echo "Creating bosh release ${CURRENT_BOSHRELEASE_NAME} to $OUTPUT/${CURRENT_BOSHRELEASE_NAME}-$VERSION.tgz"
+  bosh -n create-release --tarball="$OUTPUT/${CURRENT_BOSHRELEASE_NAME}-$VERSION.tgz" --name ${CURRENT_BOSHRELEASE_NAME} --version "$VERSION" --force
 
   git status
 
