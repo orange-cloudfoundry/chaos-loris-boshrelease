@@ -1,1 +1,9 @@
---- {}
+---
+openjdk/jdk-8u122-ea-bin-b04-linux-x64-25_oct_2016.tar.gz:
+  object_id: 4bc9b125-e4aa-4f63-9165-cec8936064ea
+  sha: f2f8c15ca2e87d4777a413f187145d5ca5572961
+  size: 128372825
+cli/cli-linux-amd64-6.23.0.tgz:
+  object_id: 2078b66b-87bf-4a5c-ab96-50f3a225cca3
+  sha: 512615bee31b36f258db1c1ca605974139035142
+  size: 6642870
