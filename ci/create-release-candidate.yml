@@ -16,7 +16,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: concourse/concourse-ci
+    repository: concourse/bosh-cli
 
 inputs:
 - name: current-boshrelease
@@ -30,5 +30,8 @@ run:
 
 params:
   CURRENT_BOSHRELEASE_NAME:
+  GH_USER:
+  GH_USER_EMAIL:
+  GH_TOKEN:
 
 
