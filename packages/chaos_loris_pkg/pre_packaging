@@ -6,7 +6,7 @@ set -x
 
 cd ${BUILD_DIR}/chaos-loris
 
-./mvnw install -DskipTest
+./mvnw install -Dexec.skip
 mv target/chaos-loris*.jar  ${BUILD_DIR}
 
 cd ${BUILD_DIR}
