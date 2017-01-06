@@ -61,7 +61,4 @@ cf bind-security-group  <%= p("chaos.loris.security_group") %> $CF_ORG $CF_TARGE
 cf start $CF_APP_NAME
 cf restage $CF_APP_NAME
 
-#create service broker + update if already existing  
-#cf create-service-broker <%= p("chaos.loris.broker_name") %> <%= p("chaos.loris.security.user.name") %> <%= p("chaos.loris.security.user.password") %> https://$CF_APP_NAME.$CF_DOMAIN
-
 
