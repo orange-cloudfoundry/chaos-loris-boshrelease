@@ -28,7 +28,12 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-git clone ./chaos-loris-boshrelease $FINAL_RELEASE_REPO
+if [ -z "$CURRENT_BOSHRELEASE_NAME" ]; then
+  echo "missing bosh release name"
+  exit 1
+fi
+
+git clone ./current-boshrelease $FINAL_RELEASE_REPO
 
 cp bosh-credentials/ci/config/private.yml $FINAL_RELEASE_REPO/config/private.yml
 
@@ -39,10 +44,10 @@ pushd $FINAL_RELEASE_REPO
     git config --global user.name "$GH_USER"
     git config --global user.email "$GH_USER_EMAIL"
 
-    RELEASE_TGZ=$PWD/releases/chaos-loris-boshrelease/chaos-loris-boshrelease-${VERSION}.tgz
+    RELEASE_TGZ=$PWD/releases/current-boshrelease/${CURRENT_BOSHRELEASE_NAME}-${VERSION}.tgz
 
     echo "finalizing release"
-    bosh -n finalize release --version "$VERSION" ${CANDIDATE_DIR}/chaos-loris-boshrelease-*.tgz
+    bosh -n finalize-release --version "$VERSION" ${CANDIDATE_DIR}/${CURRENT_BOSHRELEASE_NAME}-*.tgz
     git add -A
     git commit -m "release v${VERSION}"
 popd

@@ -19,7 +19,7 @@ image_resource:
     repository: concourse/bosh-cli
 
 inputs:
-- name: chaos-loris-boshrelease
+- name: current-boshrelease
 - name: boshrelease-version
 - name: bosh-release-candidate
 - name: bosh-credentials
@@ -29,5 +29,10 @@ outputs:
 - name: bosh-final-release-tarball
 
 run:
-  path: chaos-loris-boshrelease/ci/finalize-release.sh
+  path: current-boshrelease/ci/finalize-release.sh
+
+params:
+  CURRENT_BOSHRELEASE_NAME:
+  GH_USER:
+  GH_USER_EMAIL:
 
