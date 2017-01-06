@@ -1,0 +1,261 @@
+---
+#
+# Copyright (C) 2017 Orange
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#resource_types:
+#- name: openjdk-resource
+#  type: docker-image
+#  source:
+#    repository: orangeopensource/openjdk-resource
+
+resources:
+
+- name: chaos-loris
+  type: git
+  source:
+    uri: {{chaos-loris-git-url}}
+    branch: {{chaos-loris-git-branch}}
+
+- name: chaos-loris-boshrelease
+  type: git
+  source:
+    uri: {{chaos-loris-boshrelease-git-url}}
+    branch: {{chaos-loris-boshrelease-git-branch}}
+
+- name: chaos-loris-boshrelease-master
+  type: git
+  source:
+    uri: {{chaos-loris-boshrelease-git-url}}
+    branch: {{chaos-loris-boshrelease-master-branch}}
+
+#- name: openjdk
+#  type: openjdk-resource
+#  source:
+#    platform: linux
+#    fallback_url: http://www.java.net/download/jdk8u76/archive/b04/binaries/jdk-8u76-ea-bin-b04-linux-x64-25_jan_2016.tar.gz
+
+
+- name: boshrelease-version
+  type: semver
+  source:
+    bucket: {{aws-chaos-loris-candidate-bucket}}
+    key: current-version
+    initial_version: 0.1.0
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+    region_name: {{aws-chaos-loris-region}}
+
+
+- name: bosh-final-release
+  type: s3
+  source:
+    bucket: {{aws-chaos-loris-bucket}}
+    regexp: chaos-loris-boshrelease-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+    region_name: {{aws-chaos-loris-region}}
+
+- name: bosh-release-candidate
+  type: s3
+  source:
+    bucket: {{aws-chaos-loris-candidate-bucket}}
+    regexp: chaos-loris-boshrelease-(.*).tgz
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+    region_name: {{aws-chaos-loris-region}}
+
+- name: chaos-loris-deployment
+  type: bosh-deployment
+  source:
+    target: {{bosh-deployment-target}}
+    username: {{bosh-deployment-user}}
+    password: {{bosh-deployment-password}}
+    deployment: chaos-loris-ci
+    ignore_ssl: true
+
+#- name: resource-bosh-stemcell
+#  type: bosh-io-stemcell
+#  source:
+#    name: {{bosh-stemcell-name}}
+
+- name: resource-manifests
+  type: git
+  source:
+    uri: {{resource-manifests-uri}}
+    skip_ssl_verification: {{resource-manifests-skip-ssl-verification}}
+    paths: [deployments/master2-depls/chaos-loris-boshrelease-ci/]
+
+- name: bosh-credentials
+  type: git
+  source:
+    uri: {{bosh-credentials-uri}}
+    skip_ssl_verification: {{bosh-credentials-skip-ssl-verification}}
+    paths: [ci/config]
+
+- name: chaos-loris-errand
+  type: bosh-errand
+  source:
+    target: {{bosh-deployment-target}}
+    username: {{bosh-deployment-user}}
+    password: {{bosh-deployment-password}}
+    deployment: chaos-loris-ci
+    ignore_ssl: true
+
+
+jobs:
+
+- name: job-chaos-loris-boshrelease
+  plan:
+  - aggregate:
+#    - get: openjdk
+#      trigger: true
+#      attempts: 3
+    - get: chaos-loris
+      attempts: 3
+      trigger: true
+    - get: chaos-loris-boshrelease
+      attempts: 3
+      trigger: true
+    - get: boshrelease-version
+      params: {pre: rc}
+  - task: create-release-candidate
+    file: chaos-loris-boshrelease/ci/create-release-candidate.yml
+    input_mapping: {current-boshrelease: chaos-loris-boshrelease}
+    params:
+      GH_USER: {{github-username}}
+      GH_USER_EMAIL: {{github-email}}
+      GH_TOKEN: {{github-token}}
+      CURRENT_BOSHRELEASE_NAME: chaos-loris-boshrelease
+  - put: bosh-release-candidate
+    params: {file: bosh-release-candidate/chaos-loris-boshrelease-*.tgz}
+  - put: boshrelease-version
+    params: {pre: rc}
+    attempt: 3
+
+
+- name: job-chaos-loris-boshrelease-deploy
+  plan:
+  - aggregate:
+    - get: bosh-release-candidate
+      passed: [job-chaos-loris-boshrelease]
+      trigger: true
+      attempts: 3
+    - get: resource-manifests
+      trigger: true
+      params: { submodules: none}
+      attempts: 3
+  - put: chaos-loris-deployment
+    params:
+      manifest: resource-manifests/deployments/master2-depls/chaos-loris-boshrelease-ci/chaos-loris-ci.yml
+      releases:
+      - bosh-release-candidate/*.tgz
+      stemcells: []
+      # - resource-bosh-stemcell/*.tgz
+    attempts: 10
+
+- name: job-chaos-loris-boshrelease-errand
+  plan:
+  - aggregate:
+    - get: bosh-release-candidate
+      passed: [job-chaos-loris-boshrelease-deploy]
+      trigger: true
+      attempts: 3
+    - get: resource-manifests
+      trigger: true
+      params: { submodules: none}
+      attempts: 3
+  - put: chaos-loris-errand
+    params:
+      manifest: resource-manifests/deployments/master2-depls/chaos-loris-boshrelease-ci/chaos-loris-ci.yml
+      errand: push-chaos-loris
+    attempts: 3
+
+- name: job-chaos-loris-boshrelease-final
+  plan:
+  - aggregate:
+    - get: bosh-release-candidate
+      passed: [job-chaos-loris-boshrelease-errand]
+      trigger: true
+      attempts: 3
+    - get: chaos-loris-boshrelease
+#      passed: [chaos-loris-blob]
+      attempts: 3
+    - get: boshrelease-version
+      params: {bump: final}
+      attempts: 3
+    - get: bosh-credentials
+      trigger: true
+      params: { submodules: none}
+      attempts: 3
+  - task: finalize-release
+    file: chaos-loris-boshrelease/ci/finalize-release.yml
+    input_mapping: {current-boshrelease: chaos-loris-boshrelease}
+    params:
+      GH_USER: {{github-username}}
+      GH_USER_EMAIL: {{github-email}}
+      CURRENT_BOSHRELEASE_NAME: chaos-loris-boshrelease
+  - aggregate:
+    - put: chaos-loris-boshrelease-master
+      params:
+        repository: final-release-repo
+        tag: boshrelease-version/version
+        tag_prefix: v
+    - put: boshrelease-version
+      params: {bump: final}
+    - put: bosh-final-release
+      params: {file: bosh-final-release-tarball/chaos-loris-boshrelease-*.tgz}
+
+#- name: chaos-loris-blob
+#  serial: true
+#  plan:
+#  - aggregate:
+#    - get: openjdk
+#      passed: [job-chaos-loris-boshrelease]
+#      trigger: true
+#    - get: chaos-loris-deployment
+#      passed: [job-chaos-loris-boshrelease-deploy]
+#      trigger: true
+#    - get: chaos-loris-boshrelease
+#      passed: [job-chaos-loris-boshrelease]
+#      attempts: 3
+#      trigger: true
+#  - aggregate:
+#    - get: bosh-credentials
+#      trigger: true
+#      params: { submodules: none}
+#      attempts: 3
+#  - task: bump-package
+#    file: chaos-loris-boshrelease/ci/bump-package.yml
+#    input_mapping:
+#      boshrelease-repo: chaos-loris-boshrelease
+#      blob-dir: openjdk
+#    params:
+#      GH_USER: {{github-username}}
+#      GH_USER_EMAIL: {{github-email}}
+#      PACKAGE_NAME: openjdk
+#  - put: chaos-loris-boshrelease
+#    params: {repository: bumped-boshrelease, rebase: true}
+
+- name: NEW-major
+  plan:
+  - put: boshrelease-version
+    params: {bump: major, pre: rc}
+- name: NEW-minor
+  plan:
+  - put: boshrelease-version
+    params: {bump: minor, pre: rc}
+
+- name: NEW-patch
+  plan:
+  - put: boshrelease-version
+    params: {bump: patch, pre: rc}
+
