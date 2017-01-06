@@ -18,6 +18,11 @@ VERSION="$(cat boshrelease-version/version)"
 
 echo "DEBUG - OUTPUT: <$OUTPUT> - VERSION: <$VERSION>"
 
+if [ -z "$CURRENT_BOSHRELEASE_NAME" ]; then
+  echo "missing bosh release name"
+  exit 1
+fi
+
 pushd current-boshrelease
   git config user.name "$GH_USER"
   git config user.email "$GH_USER_EMAIL"
