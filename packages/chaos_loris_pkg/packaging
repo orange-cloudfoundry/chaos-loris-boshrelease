@@ -9,4 +9,4 @@ CPUS=$(grep -c ^processor /proc/cpuinfo)
 export HOME=/var/vcap
 
 
-cp -r ${BOSH_COMPILE_TARGET}/chaos-loris-*.jar ${BOSH_INSTALL_TARGET}/chaos-loris.jar
+cp -r ${BOSH_COMPILE_TARGET}/chaos-loris*.jar ${BOSH_INSTALL_TARGET}/chaos-loris.jar
