@@ -19,10 +19,13 @@ cf login -a $CF_API_URL  -u $CF_USERNAME -p $CF_PASSWORD  -o $CF_ORG -s $CF_DEFA
 cf create-space $CF_TARGET_SPACE
 cf target -s $CF_TARGET_SPACE
 
+#bind security group
+cf bind-security-group  <%= p("chaos.loris.security_group") %> $CF_ORG $CF_TARGET_SPACE
+
 cf push $CF_APP_NAME  -p /var/vcap/packages/chaos_loris_pkg/chaos-loris.jar -i 1 -m 1G  -b java_buildpack --no-start --no-route -t 120
 
 #map the route on specified domain
-cf map-route $CF_APP_NAME $CF_DOMAIN --hostname $CF_APP_NAME  
+cf map-route $CF_APP_NAME $CF_DOMAIN --hostname $CF_APP_NAME
 
 
 #create and bind mysql db service
@@ -53,9 +56,7 @@ cf set-env $CF_APP_NAME LORIS_CLOUDFOUNDRY_PASSWORD <%= p("chaos.loris.cf.passwo
 cf set-env $CF_APP_NAME LORIS_CLOUDFOUNDRY_SKIPSSLVALIDATION <%= p("chaos.loris.cf.skip.ssl.validation") %>
 
 
-#bind security group
-cf bind-security-group  <%= p("chaos.loris.security_group") %> $CF_ORG $CF_TARGET_SPACE
-  
+
 
 #start cf app
 cf start $CF_APP_NAME
