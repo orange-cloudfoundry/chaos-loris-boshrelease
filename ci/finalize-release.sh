@@ -37,16 +37,16 @@ git clone ./current-boshrelease $FINAL_RELEASE_REPO
 
 cp bosh-credentials/ci/config/private.yml $FINAL_RELEASE_REPO/config/private.yml
 
+# work-around Go BOSH CLI trying to rename blobs downloaded into ~/.root/tmp
+# into release dir, which is invalid cross-device link
+export HOME=$PWD
+
+git checkout -b $RELEASE_CANDIDATE_BRANCH
+git config --global user.name "$GH_USER"
+git config --global user.email "$GH_USER_EMAIL"
+
 pushd $FINAL_RELEASE_REPO
     echo "Checkout branch $RELEASE_CANDIDATE_BRANCH"
-
-    # work-around Go BOSH CLI trying to rename blobs downloaded into ~/.root/tmp
-    # into release dir, which is invalid cross-device link
-    export HOME=$PWD
-
-    git checkout -b $RELEASE_CANDIDATE_BRANCH
-    git config --global user.name "$GH_USER"
-    git config --global user.email "$GH_USER_EMAIL"
 
     RELEASE_TGZ=$PWD/releases/current-boshrelease/${CURRENT_BOSHRELEASE_NAME}-${VERSION}.tgz
 
