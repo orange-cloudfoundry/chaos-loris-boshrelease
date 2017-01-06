@@ -26,7 +26,7 @@ cf map-route $CF_APP_NAME $CF_DOMAIN --hostname $CF_APP_NAME
 
 
 #create and bind mysql db service
-cf create-service <%= p(chaos.loris.db.service") %> <%= p("chaos.loris.db.plan") %> chaos-loris-mysql
+cf create-service <%= p("chaos.loris.db.service") %> <%= p("chaos.loris.db.plan") %> chaos-loris-mysql
 cf bind-service $CF_APP_NAME chaos-loris-mysql
 
 
