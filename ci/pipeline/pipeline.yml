@@ -37,13 +37,6 @@ resources:
     uri: {{chaos-loris-boshrelease-git-url}}
     branch: {{chaos-loris-boshrelease-master-branch}}
 
-#- name: openjdk
-#  type: openjdk-resource
-#  source:
-#    platform: linux
-#    fallback_url: http://www.java.net/download/jdk8u76/archive/b04/binaries/jdk-8u76-ea-bin-b04-linux-x64-25_jan_2016.tar.gz
-
-
 - name: boshrelease-version
   type: semver
   source:
@@ -82,10 +75,6 @@ resources:
     deployment: chaos-loris-ci
     ignore_ssl: true
 
-#- name: resource-bosh-stemcell
-#  type: bosh-io-stemcell
-#  source:
-#    name: {{bosh-stemcell-name}}
 
 - name: resource-manifests
   type: git
@@ -151,7 +140,6 @@ jobs:
       trigger: true
       attempts: 3
     - get: resource-manifests
-      trigger: true
       params: { submodules: none}
       attempts: 3
   - put: chaos-loris-deployment
