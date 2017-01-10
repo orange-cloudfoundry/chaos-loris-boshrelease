@@ -103,6 +103,29 @@ resources:
 
 jobs:
 
+- name: job-chaos-loris-setup-aws-prerequisite
+  plan:
+  - aggregate:
+    - get: chaos-loris-boshrelease
+      attempts: 3
+  - task: create-candidate-bucket
+    file: chaos-loris-boshrelease/ci/create-aws-bucket.yml
+    input_mapping: {current-boshrelease: chaos-loris-boshrelease}
+    params:
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_DEFAULT_REGION: {{aws-chaos-loris-region}}
+      BUCKET_NAME: {{aws-chaos-loris-candidate-bucket}}
+  - task: create-release-bucket
+    file: chaos-loris-boshrelease/ci/create-aws-bucket.yml
+    input_mapping: {current-boshrelease: chaos-loris-boshrelease}
+    params:
+      AWS_ACCESS_KEY_ID: {{aws-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{aws-secret-access-key}}
+      AWS_DEFAULT_REGION: {{aws-chaos-loris-region}}
+      BUCKET_NAME: {{aws-chaos-loris-bucket}}
+
+
 - name: job-chaos-loris-boshrelease
   plan:
   - aggregate:
