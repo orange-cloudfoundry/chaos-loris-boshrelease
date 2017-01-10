@@ -1,0 +1,25 @@
+---
+name: chaos-loris-boshrelease
+version: 0.1.0
+commit_hash: a801d84
+uncommitted_changes: false
+jobs:
+- name: deploy_chaos_loris
+  version: 772700b9b9e1df3222bab97ec22bfe5acd7680ad
+  fingerprint: 772700b9b9e1df3222bab97ec22bfe5acd7680ad
+  sha1: fe8002de3c5779570515eea95507bb7751d9cae7
+packages:
+- name: chaos_loris_pkg
+  version: ac96a1f5d5178a9af804be0e8ed9562fd11d6b3f
+  fingerprint: ac96a1f5d5178a9af804be0e8ed9562fd11d6b3f
+  sha1: 5b49338a27f2dbec3603b1501af313396d928662
+  dependencies: []
+- name: cli
+  version: d3d3c9ffd92488e5bb6a81c41018e09d36d209c5
+  fingerprint: d3d3c9ffd92488e5bb6a81c41018e09d36d209c5
+  sha1: 0472c6107520f907ce623555d3ebef0d827695ce
+  dependencies: []
+license:
+  version: 62aea56596ec3d252abfcad77b25ca4e3d52171e
+  fingerprint: 62aea56596ec3d252abfcad77b25ca4e3d52171e
+  sha1: a34926c5baa0ef272d1590da14f0896275383876
