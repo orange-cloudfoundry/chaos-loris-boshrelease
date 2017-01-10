@@ -116,9 +116,10 @@ jobs:
 - name: job-chaos-loris-boshrelease
   plan:
   - aggregate:
-#    - get: openjdk
-#      trigger: true
-#      attempts: 3
+    - get: resource-manifests
+      trigger: true
+      params: { submodules: none}
+      attempts: 3
     - get: chaos-loris
       attempts: 3
       trigger: true
@@ -179,11 +180,17 @@ jobs:
       errand: push-chaos-loris
     attempts: 3
 
-- name: job-chaos-loris-boshrelease-final
+- name: job-chaos-loris-manual-approval
   plan:
   - aggregate:
     - get: bosh-release-candidate
       passed: [job-chaos-loris-boshrelease-errand]
+
+- name: job-chaos-loris-boshrelease-final
+  plan:
+  - aggregate:
+    - get: bosh-release-candidate
+      passed: [job-chaos-loris-manual-approval]
       trigger: true
       attempts: 3
     - get: chaos-loris-boshrelease
