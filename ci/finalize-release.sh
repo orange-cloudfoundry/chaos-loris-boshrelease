@@ -49,7 +49,7 @@ pushd $FINAL_RELEASE_REPO
     echo "Checkout branch $RELEASE_CANDIDATE_BRANCH"
     git checkout -b $RELEASE_CANDIDATE_BRANCH
 
-    RELEASE_TGZ=$PWD/releases/current-boshrelease/${CURRENT_BOSHRELEASE_NAME}-${VERSION}.tgz
+    RELEASE_TGZ=$PWD/releases/${CURRENT_BOSHRELEASE_NAME}/${CURRENT_BOSHRELEASE_NAME}-${VERSION}.tgz
 
     echo "finalizing release"
     bosh -n finalize release --version "$VERSION" ${CANDIDATE_DIR}/${CURRENT_BOSHRELEASE_NAME}-*.tgz
