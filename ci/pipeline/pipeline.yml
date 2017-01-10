@@ -30,6 +30,7 @@ resources:
   source:
     uri: {{chaos-loris-boshrelease-git-url}}
     branch: {{chaos-loris-boshrelease-git-branch}}
+    ignore_paths: [ci/pipeline]
 
 - name: chaos-loris-boshrelease-master
   type: git
